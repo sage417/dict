@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
@@ -46,14 +48,14 @@ public class ItemService {
 
         Set<String> tokens = this.token(item.getName());
 
-        Flux.fromIterable(tokens)
-                .flatMap(t-> this.stringReactiveRedisTemplate.opsForSet().add(indexKey(group, t), groupKey)).subscribe();
-
-        return this.reactiveRedisTemplate.opsForZSet().add(groupKey, item, item.getOrder());
+        return Flux.fromIterable(tokens)
+                .flatMap(t -> this.stringReactiveRedisTemplate.opsForSet().add(indexKey(group, t), groupKey))
+                .last()
+                .flatMap(r -> this.reactiveRedisTemplate.opsForZSet().add(groupKey, item, item.getOrder()));
     }
 
     public Mono<Long> deleteItem(String group, Item... items) {
-        return this.reactiveRedisTemplate.opsForZSet().remove(groupKey(group), items);
+        return this.reactiveRedisTemplate.opsForZSet().remove(groupKey(group), (Object[]) items);
     }
 
     public Flux<Item> findItems(String group, int start, int count) {
@@ -62,6 +64,12 @@ public class ItemService {
 
     public Flux<Item> findItemsByScore(String group, double score) {
         return this.reactiveRedisTemplate.opsForZSet().rangeByScore(groupKey(group), Range.of(Range.Bound.inclusive(score), Range.Bound.inclusive(score)));
+    }
+
+    public Flux<Item> findItemsByName(String group, String itemNameKeyWord) {
+        Set<String> tokens = this.token(itemNameKeyWord);
+        this.stringReactiveRedisTemplate.opsForSet().intersect(tokens.stream().limit(1).findFirst().get(), tokens.stream().skip(1).collect(Collectors.toList()));
+        return null;
     }
 
     public List<Group> findGroups() {
