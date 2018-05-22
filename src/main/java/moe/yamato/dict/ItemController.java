@@ -21,9 +21,9 @@ public class ItemController {
         return this.itemService.findItems(group, 0, 100);
     }
 
-    @GetMapping(value = "/items", params = "score")
-    public Flux<Item> findItemsByScore(@PathVariable String group, double score) {
-        return itemService.findItemsByScore(group, score);
+    @GetMapping(value = "/items", params = "name")
+    public Flux<Item> findItemsByScore(@PathVariable String group, String name) {
+        return itemService.findItemsByName(group, name);
     }
 
     @PostMapping("/item")
@@ -32,7 +32,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/item")
-    public Mono<Long> deleteItem(@PathVariable String group, @RequestBody Item item) {
+    public Mono<Boolean> deleteItem(@PathVariable String group, @RequestBody Item item) {
         return this.itemService.deleteItem(group, item);
     }
 
