@@ -1,8 +1,7 @@
-package moe.yamato.dict;
+package moe.yamato.dict.item;
 
-import lombok.Data;
 
-public @Data class Item {
+public class Item {
 
     private String name;
 

@@ -1,6 +1,5 @@
-package moe.yamato.dict;
+package moe.yamato.dict.item;
 
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.data.redis.hash.HashMapper;
 import org.springframework.stereotype.Component;
 
