@@ -1,6 +1,5 @@
 package moe.yamato.dict.item;
 
-import moe.yamato.dict.Group;
 import moe.yamato.dict.token.TokenParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -23,7 +21,6 @@ import static org.springframework.data.domain.Range.Bound.inclusive;
 @Service
 public class ItemService {
 
-    private ReactiveRedisTemplate<String, Item> reactiveRedisTemplate;
     private ReactiveRedisTemplate<String, String> stringReactiveRedisTemplate;
     private StringRedisTemplate stringRedisTemplate;
     private HashMapper<Item, String, String> itemHashMapper;
@@ -40,14 +37,12 @@ public class ItemService {
 
     @Autowired
     public ItemService(
-            ReactiveRedisTemplate<String, Item> reactiveRedisTemplate,
             ReactiveRedisTemplate<String, String> stringReactiveRedisTemplate,
             StringRedisTemplate stringRedisTemplate,
             HashMapper<Item, String, String> itemHashMapper,
             @Qualifier("itemNameTokenParser") TokenParser itemNameTokenParser,
             @Qualifier("itemCodeTokenParser") TokenParser itemCodeTokenParser
     ) {
-        this.reactiveRedisTemplate = reactiveRedisTemplate;
         this.stringReactiveRedisTemplate = stringReactiveRedisTemplate;
         this.stringRedisTemplate = stringRedisTemplate;
         this.itemHashMapper = itemHashMapper;
@@ -121,13 +116,5 @@ public class ItemService {
         return itemKeyFlux
                 .map(itemKey -> this.stringRedisTemplate.<String, String>opsForHash().entries(itemKey))
                 .map(m -> itemHashMapper.fromHash(m));
-    }
-
-    public List<Group> findGroups() {
-        return null;
-    }
-
-    public Mono<Long> deleteGroup(String group) {
-        return null;
     }
 }
